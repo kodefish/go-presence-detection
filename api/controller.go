@@ -52,6 +52,21 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 }
 
+func CORSMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		log.Printf("CORS")
+		if (*r).Method == "OPTIONS" {
+			log.Printf("Options")
+			return
+		} else {
+			next(w, r)
+		}
+	})
+}
+
 // Index GET /
 func (c *Controller) Index(w http.ResponseWriter, r *http.Request) {
 	products := c.Database.GetUsers() // list of all products
@@ -81,18 +96,30 @@ func sendJwtToken(user User, w http.ResponseWriter) {
 
 }
 
+func parseUserFromFrom(f *http.Request) User {
+	if err := f.ParseForm(); err != nil {
+		return User{}
+	}
+
+	var user User
+	for key, value := range f.Form {
+		switch key {
+		case "username":
+			user.Name = value[0]
+		case "password":
+			user.Password = value[0]
+		}
+	}
+	log.Println("received user", user)
+	return user
+}
+
 // GetToken Autenthifies user
 func (c *Controller) GetToken(w http.ResponseWriter, r *http.Request) {
 	// Get user
 	dumpRequest(r)
-	var user User
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&user); err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	log.Println("received user", user)
+
+	user := parseUserFromFrom(r)
 
 	// Get the user's password from the db
 	var dbUser User
@@ -109,13 +136,7 @@ func (c *Controller) GetToken(w http.ResponseWriter, r *http.Request) {
 // AddUser adds a user if the username is not already taken
 func (c *Controller) AddUser(w http.ResponseWriter, r *http.Request) {
 	dumpRequest(r)
-	var newUsr User
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&newUsr); err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	newUsr := parseUserFromFrom(r)
 
 	// Make sure username does not already exist
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

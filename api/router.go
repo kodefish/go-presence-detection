@@ -37,7 +37,7 @@ var routes = Routes{
 		"Auth",
 		"POST",
 		"/get-token",
-		controller.GetToken,
+		CORSMiddleware(controller.GetToken),
 	},
 	Route{
 		"Devices",
@@ -62,7 +62,7 @@ func NewRouter() *mux.Router {
 		log.Println(route.Name)
 
 		router.
-			Methods(route.Method).
+			Methods(route.Method, "OPTIONS").
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(route.HandlerFunc)
