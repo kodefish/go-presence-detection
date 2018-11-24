@@ -4,7 +4,7 @@
     <div id="app">
       <div id="nav">
         <router-link
-          v-if="this.$store.state.userIsLoggedIn"
+          v-if="this.$route.path==='/secure'"
           to="/login"
           v-on:click.native="logout();"
           replace
@@ -26,16 +26,11 @@
 </template>
 
 <script>
-  import * as axios from "axios";
   export default {
     name: "App",
     data() {
       return {
-        authenticated: false,
-        mockAccount: {
-          username: "lol",
-          password: "olo"
-        }
+        authenticated: false
       };
     },
     methods: {
