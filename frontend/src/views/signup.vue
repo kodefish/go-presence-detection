@@ -80,16 +80,19 @@
                       "Uh-oh spaghetti-oh, looks like someone did a typo",
                     confirmText: "I'll try again"
                 });
-            } else if (true /* TODO: Check that the username is not already in use */) {
+            } else {
+                
+                // TODO: Check that the username is not already in use
                 // TODO: - add new user to the database
                 this.$emit("authenticated", true);
                 this.$router.replace({ name: "secure" });
-            } else {
+                /*
                 this.$dialog.alert({
                     message:
                       "Someone else is already called like that. Quit spoofind identities like that",
                     confirmText: "Jeez, whatev's..."
                 });
+                */
             }
           
         } else {

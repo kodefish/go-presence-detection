@@ -4,41 +4,36 @@
       <h1 class="title" style="text-align: center">User Control Panel</h1>
 
       <div>
-        <b-collapse :open="false">
-            <button class="button is-primary" slot="trigger">View my devices</button>
-            <div class="notification">
-                <div class="content">
-                    <h3>
-                        My devices
-                    </h3>
-                    <p>
-                        Gotta fill that
-                    </p>
-                </div>
-            </div>
-        </b-collapse>
-      </div>
-
-      <div style="margin-top: 16px">
         <button class="button is-primary" @click="addThisDevice();">
           Add this device
         </button>
       </div>
 
       <div style="margin-top: 16px">
-        <div class="t">
-        <b-field label="Device you want to remove">
-          <b-input
-            v-model="input.mac"
-            placeholder="MAC address"
-            style="width: 500px"
-          ></b-input>
-        </b-field>
-        </div>
-        
-        <button class="button is-primary" style="margin-top: 16px" @click="removeThisDevice();">
-          Remove this device
+        <button class="button field is-danger" @click="checkedRows = []"
+            :disabled="!checkedRows.length">
+            <b-icon icon="close"></b-icon>
+            <span>Remove these devices</span>
         </button>
+
+        <b-tabs>
+            <b-tab-item label="Table">
+                <b-table
+                    :data="data"
+                    :columns="columns"
+                    :checked-rows.sync="checkedRows"
+                    checkable>
+
+                    <template slot="bottom-left">
+                        <b>Total checked</b>: {{ checkedRows.length }}
+                    </template>
+                </b-table>
+            </b-tab-item>
+
+            <b-tab-item label="Selected devices">
+                <pre>{{ checkedRows }}</pre>
+            </b-tab-item>
+        </b-tabs>
       </div>
     </div>
 
@@ -62,11 +57,26 @@
 </template>
 
 <script>
-  import * as axios from "axios";
   export default {
     name: "Secure",
     data() {
+        const data = [
+            { 'mac': 1, 'connected': 'Nah' },
+            { 'mac': 2, 'connected': 'Yeh' }
+        ]
       return {
+          data,
+          checkedRows: [],
+            columns: [
+                {
+                    field: 'mac',
+                    label: 'MAC address'
+                },
+                {
+                    field: 'connected',
+                    label: 'Currently connected',
+                } 
+            ],
           input: {
               mac: ""
           }

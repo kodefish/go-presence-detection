@@ -12,7 +12,6 @@ import VueParticles from 'vue-particles'
 Vue.config.productionTip = false
 Vue.use(Buefy)
 Vue.use(VueResource)
-window.axios = require('axios')
 Vue.use(Vuex)
 Vue.use(VueParticles)
 
@@ -24,27 +23,8 @@ const store = new Vuex.Store({
     jwt: "",
     roleUser: false,
     roleAdmin: false,
-  },
-  mutations: { // possible transformations
-    switch_url(state, url) {
-      state.url_coreCA = url
-    },
-    switch_background (state, image) {
-      state.backgroundImagePath = image
-    },
-    setLoggedIn (state, isLoggedIn) {
-      state.userIsLoggedIn = isLoggedIn
-    },
-    setToken (state, token) {
-      state.jwt = token
-    },
-    setRoleUser (state, role) {
-      state.roleUser = role
-    },
-    setRoleAdmin (state, role) {
-      state.roleAdmin = role
-    }
   }
+  
 });
 
 /* eslint-disable no-new */

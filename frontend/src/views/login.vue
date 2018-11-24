@@ -50,7 +50,6 @@
 </template>
 
 <script>
-  import * as axios from "axios";
   export default {
     name: "Login",
     data() {
@@ -66,10 +65,13 @@
         login() {
             if (this.input.username !== "" && this.input.password !== "") {
                 this.$http.post(this.$store.state.server+"/get-token", {
-                    "username": this.input.username,
-                    "password": this.input.password
-                }).then(function(data) {
-                  this.$dialog.alert('You got ' + data)
+                    username: this.input.username,
+                    password: this.input.password
+                }, {emulateJSON:true}).then(function(response) {
+                    this.$store.state.userIsLoggedIn = true
+                    this.$router.replace({ name: "secure" });
+                }).catch(function(error) {
+                  this.$router.replace({ name: "insecure" });
                 });
             
             } else {
