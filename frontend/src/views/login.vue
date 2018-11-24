@@ -50,62 +50,69 @@
 </template>
 
 <script>
-  export default {
-    name: "Login",
-    data() {
-      return {
-        filedata: 0,
-        input: {
-          username: "",
-          password: ""
-        }
-      };
+export default {
+  name: "Login",
+  data() {
+    return {
+      filedata: 0,
+      input: {
+        username: "",
+        password: ""
+      }
+    };
+  },
+  methods: {
+    login() {
+      if (this.input.username !== "" && this.input.password !== "") {
+        this.$http
+          .post(
+            this.$store.state.server + "/get-token",
+            {
+              username: this.input.username,
+              password: this.input.password
+            },
+            { emulateJSON: true }
+          )
+          .then(function(response) {
+            this.$store.state.userIsLoggedIn = true;
+            this.$store.state.jwt = response.body.token;
+            this.$router.replace({ name: "secure" });
+          })
+          .catch(function(error) {
+            this.$router.replace({ name: "insecure" });
+          });
+      } else {
+        this.$dialog.alert({
+          message:
+            "At least type something. It's like you're not even trying...",
+          confirmText: "K, K, I'll do it"
+        });
+      }
     },
-    methods: {
-        login() {
-            if (this.input.username !== "" && this.input.password !== "") {
-                this.$http.post(this.$store.state.server+"/get-token", {
-                    username: this.input.username,
-                    password: this.input.password
-                }, {emulateJSON:true}).then(function(response) {
-                    this.$store.state.userIsLoggedIn = true
-                    this.$router.replace({ name: "secure" });
-                }).catch(function(error) {
-                  this.$router.replace({ name: "insecure" });
-                });
-            
-            } else {
-                this.$dialog.alert({
-                    message:
-                    "At least type something. It's like you're not even trying...",
-                    confirmText: "K, K, I'll do it"
-                });
-            }
-        },
-        signup() {
-            this.$router.replace({ name: "signup" });
-        }
+    signup() {
+      this.$router.replace({ name: "signup" });
     }
-  };
+  }
+};
 </script>
 
 <style scoped>
-  #login {
-    border: 1px solid #cccccc;
-    background-color: #ffffff;
-    opacity: 0.95;
-    display: inline-block;
-    margin-left: 25%;
-    margin-top: 1%;
-    text-align: center;
-    margin-right: auto;
-    width: 50%;
-    padding: 20px;
-    position: fixed;
-    overflow-y: scroll;
-    border-radius: 5px;
-  }
-  .button {
-    margin-top: 16px;
-  }
+#login {
+  border: 1px solid #cccccc;
+  background-color: #ffffff;
+  opacity: 0.95;
+  display: inline-block;
+  margin-left: 25%;
+  margin-top: 1%;
+  text-align: center;
+  margin-right: auto;
+  width: 50%;
+  padding: 20px;
+  position: fixed;
+  overflow-y: scroll;
+  border-radius: 5px;
+}
+.button {
+  margin-top: 16px;
+}
 </style>

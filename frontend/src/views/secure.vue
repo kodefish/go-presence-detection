@@ -82,9 +82,6 @@
           }
       };
     },
-    mounted() {
-      this.get_user_info();
-    },
     methods: {
         addThisDevice() {
             if (false /* TODO: Check that it isn't added already */) {
@@ -124,7 +121,19 @@
                     confirmText: "K, K, I'll do it"
                 });
             }
+        },
+        getAllDevices() {
+            console.log("Getting devices");
+            this.$http.get(
+                this.$store.state.server + "/devices",
+                {headers: { Authorization: "Bearer " + this.$store.state.jwt }}
+            ).then(function (response) {
+                console.log(JSON.stringify(response))
+            })
         }
+    },
+    beforeMount() {
+        this.getAllDevices()
     }
   };
 </script>
