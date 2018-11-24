@@ -26,4 +26,4 @@ func main() {
 
 	// Runs an arp scan, yay!
 	detection.Main()
-)
+}
