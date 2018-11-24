@@ -6,20 +6,19 @@ import router from './router'
 import Vuex from 'vuex'
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
-import axios from 'axios'
-import VueAxios from 'vue-axios'
+import VueResource from 'vue-resource'
 import VueParticles from 'vue-particles'
 
 Vue.config.productionTip = false
 Vue.use(Buefy)
-Vue.use(VueAxios, axios)
+Vue.use(VueResource)
 window.axios = require('axios')
 Vue.use(Vuex)
 Vue.use(VueParticles)
 
 const store = new Vuex.Store({
   state: {
-    url_coreCA: "https://198.168.1.4:8443",
+    server: "http://192.33.206.40:4200",
     backgroundImagePath: require('./assets/background.jpg'),
     userIsLoggedIn: false,
     jwt: "",

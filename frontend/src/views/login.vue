@@ -65,14 +65,12 @@
     methods: {
         login() {
             if (this.input.username !== "" && this.input.password !== "") {
-                if (this.input.username == this.$parent.mockAccount.username && this.input.password == this.$parent.mockAccount.password) {
-                    // TODO: - change the mock
-                    this.$emit("authenticated", true);
-                    this.$router.replace({ name: "secure" });
-                } else {
-                    this.$emit("authenticated", false);
-                    this.$router.replace({ name: "insecure" });
-                }
+                this.$http.post(this.$store.state.server+"/get-token", {
+                    "username": this.input.username,
+                    "password": this.input.password
+                }).then(function(data) {
+                  this.$dialog.alert('You got ' + data)
+                });
             
             } else {
                 this.$dialog.alert({
