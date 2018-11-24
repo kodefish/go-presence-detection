@@ -24,8 +24,6 @@ func main() {
 
 	// Launch server with CORS validation
 	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(allowedOrigins, allowedMethods)(router)))
-	// Launch server with CORS validation
-	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(allowedOrigins, allowedMethods)(router)))
 
 	for key, value := range detection.Scan() {
 		fmt.Printf("%s - %s\n", key, value)

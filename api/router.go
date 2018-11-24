@@ -39,18 +39,18 @@ var routes = Routes{
 		"/get-token",
 		controller.GetToken,
 	},
+	Route{
+		"Devices",
+		"GET",
+		"/devices",
+		AuthenticationMiddleware(controller.GetAllDevices),
+	},
 	/*
 		Route{
 			"AddDevice",
 			"POST",
 			"/add/device",
 			AuthenticationMiddleware(controller.AddDevice),
-		},
-		Route{
-			"Devices",
-			"GET",
-			"/devices",
-			AuthenticationMiddleware(controller.GetAllDevices),
 		},
 	*/
 }

@@ -136,6 +136,8 @@ func (c *Controller) AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (c *Controller) GetAllDevices(w http.ResponseWriter, r *http.Request) {}
+
 func dumpRequest(r *http.Request) {
 	output, err := httputil.DumpRequest(r, true)
 	if err != nil {
