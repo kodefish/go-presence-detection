@@ -33,7 +33,7 @@
     <vue-particles>
       color="#FFFFFF"
       :particleOpacity="0.7"
-      :particlesNumber="40"
+      :particlesNumber="200"
       shapeType="circle"
       :particleSize="4"
       linesColor="#dedede"
@@ -97,22 +97,22 @@ export default {
 </script>
 
 <style scoped>
-#login {
-  border: 1px solid #cccccc;
-  background-color: #ffffff;
-  opacity: 0.95;
-  display: inline-block;
-  margin-left: 25%;
-  margin-top: 1%;
-  text-align: center;
-  margin-right: auto;
-  width: 50%;
-  padding: 20px;
-  position: fixed;
-  overflow-y: scroll;
-  border-radius: 5px;
-}
-.button {
-  margin-top: 16px;
-}
+  #login {
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    opacity: 0.9;
+    display: inline-block;
+    margin-left: 25%;
+    margin-top: 1%;
+    text-align: center;
+    margin-right: auto;
+    width: 50%;
+    padding: 20px;
+    position: fixed;
+    overflow-y: scroll;
+    border-radius: 5px;
+  }
+  .button {
+    margin-top: 16px;
+  }
 </style>
