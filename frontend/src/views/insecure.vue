@@ -10,7 +10,7 @@
     <vue-particles>
       color="#FFFFFF"
       :particleOpacity="0.7"
-      :particlesNumber="40"
+      :particlesNumber="200"
       shapeType="circle"
       :particleSize="4"
       linesColor="#dedede"

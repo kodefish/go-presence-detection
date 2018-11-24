@@ -33,7 +33,7 @@
     <vue-particles>
       color="#FFFFFF"
       :particleOpacity="0.7"
-      :particlesNumber="40"
+      :particlesNumber="200"
       shapeType="circle"
       :particleSize="4"
       linesColor="#dedede"
@@ -93,7 +93,7 @@
   #login {
     border: 1px solid #cccccc;
     background-color: #ffffff;
-    opacity: 0.95;
+    opacity: 0.9;
     display: inline-block;
     margin-left: 25%;
     margin-top: 1%;
