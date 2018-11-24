@@ -81,19 +81,22 @@
                     confirmText: "I'll try again"
                 });
             } else {
-                
-                // TODO: Check that the username is not already in use
-                // TODO: - add new user to the database
-                this.$emit("authenticated", true);
-                this.$router.replace({ name: "secure" });
-                /*
-                this.$dialog.alert({
+                this.$http.post(this.$store.state.server+"/register", {
+                    username: this.input.username,
+                    password: this.input.password
+                }, {emulateJSON:true}).then(function(response) {
+                  console.log(response)
+                  this.$store.state.userIsLoggedIn = true
+                  this.$router.replace({ name: "secure" });
+                }).catch(function(error) {
+                  console.log(error)
+                  this.$dialog.alert({
                     message:
-                      "Someone else is already called like that. Quit spoofind identities like that",
+                      "Well, it's kind of awkward, but... the username you picked really sucks, and we feel like you should take another one",
                     confirmText: "Jeez, whatev's..."
+                  });
                 });
-                */
-            }
+            } 
           
         } else {
           this.$dialog.alert({
@@ -102,6 +105,10 @@
             confirmText: "K, K, I'll do it"
           });
         }
+
+        this.input.username = ""
+        this.input.password = ""
+        this.input.passwordAgain = ""
       },
       login() {
         this.$router.replace({ name: "login" });
