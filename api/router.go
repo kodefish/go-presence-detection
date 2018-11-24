@@ -37,7 +37,13 @@ var routes = Routes{
 		"Auth",
 		"POST",
 		"/get-token",
-		controller.GetToken,
+		CORSMiddleware(controller.GetToken),
+	},
+	Route{
+		"Devices",
+		"GET",
+		"/devices",
+		AuthenticationMiddleware(controller.GetAllDevices),
 	},
 	/*
 		Route{
@@ -45,12 +51,6 @@ var routes = Routes{
 			"POST",
 			"/add/device",
 			AuthenticationMiddleware(controller.AddDevice),
-		},
-		Route{
-			"Devices",
-			"GET",
-			"/devices",
-			AuthenticationMiddleware(controller.GetAllDevices),
 		},
 	*/
 }
@@ -62,7 +62,7 @@ func NewRouter() *mux.Router {
 		log.Println(route.Name)
 
 		router.
-			Methods(route.Method).
+			Methods(route.Method, "OPTIONS").
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(route.HandlerFunc)

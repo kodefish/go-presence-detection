@@ -19,13 +19,12 @@ func main() {
 
 	router := api.NewRouter() // create routes
 
-	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
+	allowedOrigins := handlers.AllowedOrigins([]string{"192.33.206.191"})
 	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT"})
+	allowedHeaders := handlers.AllowedHeaders([]string{"*"})
 
 	// Launch server with CORS validation
-	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(allowedOrigins, allowedMethods)(router)))
-	// Launch server with CORS validation
-	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(allowedOrigins, allowedMethods)(router)))
+	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders)(router)))
 
 	for key, value := range detection.Scan() {
 		fmt.Printf("%s - %s\n", key, value)

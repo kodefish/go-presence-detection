@@ -52,6 +52,21 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 }
 
+func CORSMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		log.Printf("CORS")
+		if (*r).Method == "OPTIONS" {
+			log.Printf("Options")
+			return
+		} else {
+			next(w, r)
+		}
+	})
+}
+
 // Index GET /
 func (c *Controller) Index(w http.ResponseWriter, r *http.Request) {
 	products := c.Database.GetUsers() // list of all products
@@ -64,18 +79,47 @@ func (c *Controller) Index(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func sendJwtToken(user User, w http.ResponseWriter) {
+	// Generate JWT token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+	})
+
+	// Send token response
+	if tokenString, err := token.SignedString([]byte(secretSigningKey)); err != nil {
+		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.Header().Set("Content-Type", "application/jwt; charset=UTF-8")
+		json.NewEncoder(w).Encode(JwtToken{Token: tokenString})
+	}
+
+}
+
+func parseUserFromFrom(f *http.Request) User {
+	if err := f.ParseForm(); err != nil {
+		return User{}
+	}
+
+	var user User
+	for key, value := range f.Form {
+		switch key {
+		case "username":
+			user.Name = value[0]
+		case "password":
+			user.Password = value[0]
+		}
+	}
+	log.Println("received user", user)
+	return user
+}
+
 // GetToken Autenthifies user
 func (c *Controller) GetToken(w http.ResponseWriter, r *http.Request) {
 	// Get user
 	dumpRequest(r)
-	var user User
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&user); err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	log.Println("received user", user)
+
+	user := parseUserFromFrom(r)
 
 	// Get the user's password from the db
 	var dbUser User
@@ -83,19 +127,7 @@ func (c *Controller) GetToken(w http.ResponseWriter, r *http.Request) {
 
 	// Check that the password matches
 	if crypto.ComparePasswords(dbUser.Password, user.Password) {
-		// Generate JWT token
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"user_id": dbUser.ID,
-		})
-
-		// Send token response
-		if tokenString, err := token.SignedString([]byte(secretSigningKey)); err != nil {
-			log.Fatal(err)
-			w.WriteHeader(http.StatusInternalServerError)
-		} else {
-			w.Header().Set("Content-Type", "application/jwt; charset=UTF-8")
-			json.NewEncoder(w).Encode(JwtToken{Token: tokenString})
-		}
+		sendJwtToken(dbUser, w)
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
@@ -104,13 +136,7 @@ func (c *Controller) GetToken(w http.ResponseWriter, r *http.Request) {
 // AddUser adds a user if the username is not already taken
 func (c *Controller) AddUser(w http.ResponseWriter, r *http.Request) {
 	dumpRequest(r)
-	var newUsr User
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&newUsr); err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	newUsr := parseUserFromFrom(r)
 
 	// Make sure username does not already exist
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -122,14 +148,16 @@ func (c *Controller) AddUser(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(Exception{Message: "Username is already assigned"})
 	} else {
 		log.Println("User does not exist!")
-		if c.Database.AddUser(newUsr) {
+		if usr, err := c.Database.AddUser(newUsr); err {
 			log.Println("User added!")
-			w.WriteHeader(http.StatusCreated)
+			sendJwtToken(usr, w)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}
 }
+
+func (c *Controller) GetAllDevices(w http.ResponseWriter, r *http.Request) {}
 
 func dumpRequest(r *http.Request) {
 	output, err := httputil.DumpRequest(r, true)

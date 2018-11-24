@@ -8,12 +8,15 @@ import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
 import VueResource from 'vue-resource'
 import VueParticles from 'vue-particles'
+import axios from 'axios'
+import VueAxios from 'vue-axios'
 
 Vue.config.productionTip = false
 Vue.use(Buefy)
 Vue.use(VueResource)
 Vue.use(Vuex)
 Vue.use(VueParticles)
+Vue.use(VueAxios, axios)
 
 const store = new Vuex.Store({
   state: {
