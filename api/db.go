@@ -63,7 +63,7 @@ func (db Database) GetUserByUsername(username string, result *User) bool {
 }
 
 // AddUser adds a user to the db
-func (db Database) AddUser(user User) bool {
+func (db Database) AddUser(user User) (User, bool) {
 	session, collection := getSessionAndCollection()
 	defer session.Close()
 	// Generate new user id
@@ -72,10 +72,11 @@ func (db Database) AddUser(user User) bool {
 	saltedPassword := crypto.HashAndSalt(user.Password)
 
 	// Store user in db - return error. But should go smoothly, right?
-	err = collection.Insert(User{
+	usr := User{
 		ID:       id.String(),
 		Name:     user.Name,
 		Password: saltedPassword,
-	})
-	return err == nil
+	}
+	err = collection.Insert(usr)
+	return usr, err == nil
 }

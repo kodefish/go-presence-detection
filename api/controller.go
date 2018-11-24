@@ -64,6 +64,23 @@ func (c *Controller) Index(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func sendJwtToken(user User, w http.ResponseWriter) {
+	// Generate JWT token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+	})
+
+	// Send token response
+	if tokenString, err := token.SignedString([]byte(secretSigningKey)); err != nil {
+		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.Header().Set("Content-Type", "application/jwt; charset=UTF-8")
+		json.NewEncoder(w).Encode(JwtToken{Token: tokenString})
+	}
+
+}
+
 // GetToken Autenthifies user
 func (c *Controller) GetToken(w http.ResponseWriter, r *http.Request) {
 	// Get user
@@ -83,19 +100,7 @@ func (c *Controller) GetToken(w http.ResponseWriter, r *http.Request) {
 
 	// Check that the password matches
 	if crypto.ComparePasswords(dbUser.Password, user.Password) {
-		// Generate JWT token
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"user_id": dbUser.ID,
-		})
-
-		// Send token response
-		if tokenString, err := token.SignedString([]byte(secretSigningKey)); err != nil {
-			log.Fatal(err)
-			w.WriteHeader(http.StatusInternalServerError)
-		} else {
-			w.Header().Set("Content-Type", "application/jwt; charset=UTF-8")
-			json.NewEncoder(w).Encode(JwtToken{Token: tokenString})
-		}
+		sendJwtToken(dbUser, w)
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 	}
@@ -122,9 +127,9 @@ func (c *Controller) AddUser(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(Exception{Message: "Username is already assigned"})
 	} else {
 		log.Println("User does not exist!")
-		if c.Database.AddUser(newUsr) {
+		if usr, err := c.Database.AddUser(newUsr); err {
 			log.Println("User added!")
-			w.WriteHeader(http.StatusCreated)
+			sendJwtToken(usr, w)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
