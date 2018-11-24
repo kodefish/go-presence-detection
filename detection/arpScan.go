@@ -9,8 +9,8 @@ import (
 // Scan scans.
 // That's it.
 // Ta mère.
-func Scan() (IPandMAC map[string]string) {
-	IPandMAC = make(map[string]string)
+func Scan() (ipandmac IPandMAC) {
+	ipandmac = make(IPandMAC)
 
 	output, err := exec.Command("/bin/bash", "-c", "arp-scan -l").Output()
 	if err != nil {
@@ -21,7 +21,7 @@ func Scan() (IPandMAC map[string]string) {
 	asStrings = asStrings[2 : len(asStrings)-4]
 	for _, line := range asStrings {
 		asArray := strings.Split(line, "\t")
-		IPandMAC[asArray[0]] = strings.Split(asArray[1], " ")[0]
+		ipandmac[IP(asArray[0])] = MAC(strings.Split(asArray[1], " ")[0])
 	}
 
 	return
