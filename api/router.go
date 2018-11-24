@@ -21,19 +21,23 @@ type Route struct {
 type Routes []Route
 
 var routes = Routes{
-	/*
-		Route{
-			"Auth",
-			"POST",
-			"/get-token",
-			controller.GetToken,
-		},
-	*/
 	Route{
 		"Index",
 		"GET",
 		"/",
 		controller.Index,
+	},
+	Route{
+		"AddUser",
+		"POST",
+		"/register",
+		controller.AddUser,
+	},
+	Route{
+		"Auth",
+		"POST",
+		"/get-token",
+		controller.GetToken,
 	},
 	/*
 		Route{
@@ -43,10 +47,10 @@ var routes = Routes{
 			AuthenticationMiddleware(controller.AddDevice),
 		},
 		Route{
-			"AddUser",
-			"POST",
-			"/add/user",
-			AuthenticationMiddleware(controller.AddUser),
+			"Devices",
+			"GET",
+			"/devices",
+			AuthenticationMiddleware(controller.GetAllDevices),
 		},
 	*/
 }

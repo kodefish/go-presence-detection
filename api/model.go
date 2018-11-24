@@ -10,15 +10,20 @@ const (
 )
 
 type User struct {
-	ID int `bson:"_id" json:"_id"`
-
-	Name    string  `bson:"username" json:"username"`
-	Devices Devices `bson:"devices" json:"devices"`
+	ID       string  `bson:"_id" json:"_id"`
+	Name     string  `bson:"username" json:"username"`
+	Password string  `bson:"password" json:"password"`
+	Devices  Devices `bson:"devices" json:"devices"`
 }
+
+// Users list of users
 type Users []User
 
 // TODO are these really strings or can we use smth else ?
+// MAC is a hardware address of a device
 type MAC string
+
+// IP is a IP address of a device
 type IP string
 type Device struct {
 	ID      int        `bson:"_id" json:"_id"`
@@ -28,4 +33,16 @@ type Device struct {
 	Type    DeviceType `bson:"device_type" json:"device_type"`
 	Mobile  bool       `bson:"mobile" json:"mobile"`
 }
+
+// Devices list of devices
 type Devices []Device
+
+// JwtToken {token: "jwt token"}
+type JwtToken struct {
+	Token string `json:"token"`
+}
+
+// Exception server exception
+type Exception struct {
+	Message string `json:"message"`
+}

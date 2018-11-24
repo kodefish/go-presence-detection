@@ -7,7 +7,6 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/kodefish/go-presence-detection/api"
-	"github.com/kodefish/go-presence-detection/detection"
 )
 
 func main() {
@@ -23,7 +22,4 @@ func main() {
 
 	// Launch server with CORS validation
 	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(allowedOrigins, allowedMethods)(router)))
-
-	// Runs an arp scan, yay!
-	detection.Main()
 }
