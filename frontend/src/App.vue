@@ -26,17 +26,10 @@
 </template>
 
 <script>
-  import * as axios from "axios";
   export default {
     name: "App",
     data() {
-      return {
-        authenticated: false,
-        mockAccount: {
-          username: "lol",
-          password: "olo"
-        }
-      };
+      return {};
     },
     methods: {
       back () {
