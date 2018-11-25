@@ -129,7 +129,9 @@
                 {headers: { Authorization: "Bearer " + this.$store.state.jwt }}
             ).then(function (response) {
                 console.log(JSON.stringify(response))
-            })
+            }).catch(function(error) {
+                this.$dialog.alert("Shit happens")
+            });
         }
     },
     beforeMount() {
