@@ -96,27 +96,27 @@ func sendJwtToken(user User, w http.ResponseWriter) {
 
 }
 
-func parseUserFromForm(f *http.Request) User {
-	if err := f.ParseForm(); err != nil {
-		return User{}
+func parseUserFromJSON(w http.ResponseWriter, r *http.Request) User {
+	b, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		http.Error(w, err.Error(), 500)
 	}
 
+	// Unmarshal
 	var user User
-	for key, value := range f.Form {
-		switch key {
-		case "username":
-			user.Name = value[0]
-		case "password":
-			user.Password = value[0]
-		}
+	err = json.Unmarshal(b, &user)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
 	}
 	return user
 }
 
 // GetToken Autenthifies user
 func (c *Controller) GetToken(w http.ResponseWriter, r *http.Request) {
+
 	// Get user
-	user := parseUserFromForm(r)
+	user := parseUserFromJSON(w, r)
 
 	// Get the user's password from the db
 	var dbUser User
@@ -132,7 +132,7 @@ func (c *Controller) GetToken(w http.ResponseWriter, r *http.Request) {
 
 // AddUser adds a user if the username is not already taken
 func (c *Controller) AddUser(w http.ResponseWriter, r *http.Request) {
-	newUsr := parseUserFromForm(r)
+	newUsr := parseUserFromJSON(w, r)
 
 	// Make sure username does not already exist
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -191,14 +191,16 @@ func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {
 	usersHome := make(map[string]detection.MAC) // username -> one of their device's MAC
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	var connectedUser []string
 	for _, mac := range macs {
 		var dbUser User
 		if c.Database.getUserByDevice(mac, &dbUser) {
+			connectedUser = append(connectedUser, dbUser.Name)
 			usersHome[dbUser.Name] = mac
 		}
 	}
 
-	json.NewEncoder(w).Encode(usersHome)
+	json.NewEncoder(w).Encode(connectedUser)
 }
 
 func setDifference(a, b []detection.MAC) (diff []detection.MAC) {

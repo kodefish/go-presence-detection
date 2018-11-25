@@ -87,7 +87,7 @@ func (db Database) getUserByDevice(mac detection.MAC, result *User) bool {
 	session, collection := getSessionAndCollection()
 	defer session.Close()
 
-	err := collection.Find(bson.M{"MACAddr": mac}).One(result)
+	err := collection.Find(bson.M{"devices": mac}).One(result)
 	return err == nil
 }
 
