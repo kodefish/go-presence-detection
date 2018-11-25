@@ -1,10 +1,12 @@
 package detection
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	maxConsecutiveAbsences = 3
-	sleepTime              = 1
+	sleepTime              = 10
 )
 
 var (

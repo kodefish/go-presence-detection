@@ -154,7 +154,7 @@ export default {
           console.log(JSON.stringify(response));
         })
         .catch(function(error) {
-          this.$dialog.alert("Shit happens");
+          this.$dialog.alert("Nothing here");
         });
     },
     wait(ms) {
@@ -172,10 +172,16 @@ export default {
             headers: { Authorization: "Bearer " + this.$store.state.jwt }
           })
           .then(function(response) {
-            console.log(JSON.stringify(response));
+            var asString = JSON.stringify(response); // Of the form userName -> MAC
+            var asStrings = asString.split("\n");
+            var users = asStrings;
+            for (var i = 0 ; i < asStrings.length ; i++) {
+                users[i] = asStrings[i].split(" ")[0];
+            }
+            
           })
           .catch(function(error) {
-            this.$dialog.alert("Shit happens");
+            this.$dialog.alert("No one here");
           });
 
         wait(10000); // 10 seconds
