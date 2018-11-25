@@ -16,7 +16,7 @@ func NewRouter() *vestigo.Router {
 		AllowCredentials: true,
 		ExposeHeaders:    []string{"X-Header", "X-Y-Header"},
 		MaxAge:           3600 * time.Second,
-		AllowHeaders:     []string{"X-Header", "X-Y-Header", "Authorization"},
+		AllowHeaders:     []string{"X-Header", "X-Y-Header", "Authorization", "Content-Type"},
 	})
 
 	// Define Routes

@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -218,17 +219,28 @@ func setDifference(a, b []detection.MAC) (diff []detection.MAC) {
 func (c *Controller) DeleteDevices(w http.ResponseWriter, r *http.Request) {
 	dumpRequest(r)
 	userID := getUserIDFromContext(r)
-	var macsToDelete []detection.MAC
+	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
-	if err := json.NewDecoder(r.Body).Decode(&macsToDelete); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(Exception{Message: "Invalid request payload"})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
 		return
 	}
 
+	// Unmarshal
+	var dev struct {
+		Devices []detection.MAC `json:"devices" bson:"devices"`
+	}
+	err = json.Unmarshal(b, &dev)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	log.Println(dev.Devices[0])
 	var user User
 	if c.Database.GetUserByID(userID, &user) {
-		user.Devices = setDifference(user.Devices, macsToDelete)
+		user.Devices = setDifference(user.Devices, dev.Devices)
+		log.Println(user.Devices)
 		if c.Database.UpdateUserById(userID, user) {
 			json.NewEncoder(w).Encode(user.Devices)
 			return
