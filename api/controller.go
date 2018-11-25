@@ -204,10 +204,9 @@ func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func getNewDevices(set []detection.MAC, elem detection.MAC) (newDevices []detection.MAC) {
-	newDevices = make([]detection.MAC)
 	for _, item := range set {
 		if item != elem {
-			newDevices.push(item)
+			newDevices = append(newDevices, item)
 		}
 	}
 	return
