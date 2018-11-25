@@ -3,8 +3,10 @@ package api
 import (
 	"log"
 
+	"github.com/kodefish/go-presence-detection/detection"
+	uuid "github.com/satori/go.uuid"
+
 	"github.com/kodefish/go-presence-detection/crypto"
-	"github.com/satori/go.uuid"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -79,4 +81,12 @@ func (db Database) AddUser(user User) (User, bool) {
 	}
 	err = collection.Insert(usr)
 	return usr, err == nil
+}
+
+func (db Database) getUserByDevice(mac detection.MAC, result *User) bool {
+	session, collection := getSessionAndCollection()
+	defer session.Close()
+
+	err := collection.Find(bson.M{"MACAddr": mac}).One(result)
+	return err == nil
 }

@@ -8,9 +8,10 @@ import (
 	"net/http/httputil"
 	"strings"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/kodefish/go-presence-detection/crypto"
+	"github.com/kodefish/go-presence-detection/detection"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/context"
 )
 
@@ -159,4 +160,20 @@ func AddDevice(w http.ResponseWriter, r *http.Request) {
 	userID := getUserIDFromContext(r)
 	log.Println(r.RemoteAddr, userID)
 	w.WriteHeader(http.StatusOK)
+}
+
+func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {
+	dumpRequest(r)
+	macs := detection.GetMACs()
+	usersHome := make(map[string]detection.MAC) // username -> one of their device's MAC
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	for _, mac := range macs {
+		var dbUser User
+		if c.Database.getUserByDevice(mac, &dbUser) {
+			usersHome[dbUser.Name] = mac
+		}
+	}
+
+	json.NewEncoder(w).Encode(usersHome)
 }
