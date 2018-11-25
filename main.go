@@ -21,5 +21,6 @@ func main() {
 	// Init REST server
 	router := api.NewRouter() // create routes
 	// Launch server with CORS validation
+	log.Println("Starting on port", port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }

@@ -204,7 +204,7 @@ func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {
 	for _, mac := range macs {
 		var dbUser User
 		if c.Database.getUserByDevice(mac, &dbUser) {
-			if !setContains(connectedUser, dbUser.name) {
+			if !setContains(connectedUser, dbUser.Name) {
 				connectedUser = append(connectedUser, dbUser.Name)
 				usersHome[dbUser.Name] = mac
 			}
