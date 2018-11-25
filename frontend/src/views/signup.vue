@@ -75,10 +75,7 @@ export default {
     signup() {
       if (this.input.username !== "" && this.input.password !== "") {
         if (this.input.password != this.input.passwordAgain) {
-          this.$dialog.alert({
-            message: "Uh-oh spaghetti-oh, looks like someone did a typo",
-            confirmText: "I'll try again"
-          });
+          this.$dialog.alert("The passwords you entered are not the same");
         } else {
           this.$http
             .post(
@@ -97,19 +94,11 @@ export default {
             })
             .catch(function(error) {
               console.log(error);
-              this.$dialog.alert({
-                message:
-                  "Well, it's kind of awkward, but... the username you picked really sucks, and we feel like you should take another one",
-                confirmText: "Jeez, whatev's..."
-              });
+              this.$dialog.alert("This username is already taken");
             });
         }
       } else {
-        this.$dialog.alert({
-          message:
-            "At least type something. It's like you're not even trying...",
-          confirmText: "K, K, I'll do it"
-        });
+        this.$dialog.alert("You cannot have an empty username or password");
       }
 
       this.input.username = "";

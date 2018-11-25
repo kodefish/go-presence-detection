@@ -82,11 +82,7 @@ export default {
             this.$router.replace({ name: "insecure" });
           });
       } else {
-        this.$dialog.alert({
-          message:
-            "At least type something. It's like you're not even trying...",
-          confirmText: "K, K, I'll do it"
-        });
+        this.$dialog.alert("You need to enter a username and a pasword");
       }
     },
     signup() {

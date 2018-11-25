@@ -77,7 +77,7 @@ export default {
           console.log(JSON.stringify(response));
         })
         .catch(function(error) {
-          this.$dialog.alert("Sorry");
+          this.$dialog.alert("This device is already in our system");
         });
 
         this.getAllDevices()
@@ -90,7 +90,7 @@ export default {
         }, {
           headers: { Authorization: "Bearer " + this.$store.state.jwt }
         }).then(function(response) {
-            console.log(JSON.stringify(response));
+            // Nothing
         }).catch(function(error) {
           // Nothing
         });
@@ -112,7 +112,6 @@ export default {
         });
     },
     getConnectedUsers() {
-      console.log("Getting connected users");
       this.$http
         .get(this.$store.state.server + "/connected-users", {
             headers: { Authorization: "Bearer " + this.$store.state.jwt }

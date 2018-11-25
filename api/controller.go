@@ -218,6 +218,16 @@ func setDifference(a, b []detection.MAC) (diff []detection.MAC) {
 	return
 }
 
+func setContainsElem(set []detection.MAC, elem detection.MAC) bool {
+	for _, item := range set {
+		if item == elem {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (c *Controller) DeleteDevices(w http.ResponseWriter, r *http.Request) {
 	dumpRequest(r)
 	userID := getUserIDFromContext(r)
