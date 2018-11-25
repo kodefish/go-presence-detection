@@ -24,5 +24,6 @@ func NewRouter() *vestigo.Router {
 	router.Post("/register", controller.AddUser)
 	router.Post("/get-token", controller.GetToken)
 	router.Get("/devices", controller.GetAllDevices, AuthenticationMiddleware)
+	router.Get("/connected-users", controller.WhosHome, AuthenticationMiddleware)
 	return router
 }

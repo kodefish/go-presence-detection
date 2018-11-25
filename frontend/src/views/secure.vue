@@ -17,10 +17,10 @@
         </button>
 
         <b-tabs>
-            <b-tab-item label="Table">
+            <b-tab-item label="My Devices">
                 <b-table
-                    :data="data"
-                    :columns="columns"
+                    :data="myDevices"
+                    :columns="columnsDevices"
                     :checked-rows.sync="checkedRows"
                     checkable>
 
@@ -32,6 +32,17 @@
 
             <b-tab-item label="Selected devices">
                 <pre>{{ checkedRows }}</pre>
+            </b-tab-item>
+        </b-tabs>
+      </div>
+
+      <div style="margin-top: 16px">
+        <b-tabs>
+            <b-tab-item label="Connected Users">
+                <b-table
+                    :data="connectedUsers"
+                    :columns="columnsUsers">
+                </b-table>
             </b-tab-item>
         </b-tabs>
       </div>
@@ -60,11 +71,18 @@
 export default {
   name: "Secure",
   data() {
-    const data = [{ mac: 1, connected: "Nah" }, { mac: 2, connected: "Yeh" }];
+    const myDevices = [
+      { mac: 1, connected: "Nah" },
+      { mac: 2, connected: "Yeh" }
+    ];
+    const connectedUsers = [
+      { name: ")'; DROP TABLE Users; --" },
+      { name: "H4X0R" }
+    ];
     return {
-      data,
+      myDevices,
       checkedRows: [],
-      columns: [
+      columnsDevices: [
         {
           field: "mac",
           label: "MAC address"
@@ -72,6 +90,13 @@ export default {
         {
           field: "connected",
           label: "Currently connected"
+        }
+      ],
+      connectedUsers,
+      columnsUsers: [
+        {
+          field: "name",
+          label: "Name"
         }
       ],
       input: {
@@ -121,21 +146,45 @@ export default {
     },
     getAllDevices() {
       console.log("Getting devices");
-      if (this.$store.state.jwt != "") {
+      this.$http
+        .get(this.$store.state.server + "/devices", {
+          headers: { Authorization: "Bearer " + this.$store.state.jwt }
+        })
+        .then(function(response) {
+          console.log(JSON.stringify(response));
+        })
+        .catch(function(error) {
+          this.$dialog.alert("Shit happens");
+        });
+    },
+    wait(ms) {
+      var start = new Date().getTime();
+      var end = start;
+      while (end < start + ms) {
+        end = new Date().getTime();
+      }
+    },
+    getConnectedUsers() {
+      while (true) {
+        console.log("Getting connected users");
         this.$http
-          .get(this.$store.state.server + "/devices", {
+          .get(this.$store.state.server + "/connected-users", {
             headers: { Authorization: "Bearer " + this.$store.state.jwt }
           })
           .then(function(response) {
             console.log(JSON.stringify(response));
+          })
+          .catch(function(error) {
+            this.$dialog.alert("Shit happens");
           });
-      } else {
-        this.$router.replace({ name: "login" });
+
+        wait(10000); // 10 seconds
       }
     }
   },
   beforeMount() {
     this.getAllDevices();
+    this.getConnectedUsers();
   }
 };
 </script>
