@@ -22,10 +22,23 @@ type Controller struct {
 	Database Database
 }
 
+func dumpRequest(r *http.Request) {
+	output, err := httputil.DumpRequest(r, true)
+	if err != nil {
+		log.Println("Error dumping request:", err)
+		return
+	}
+	log.Println(string(output))
+}
+
+func getUserIDFromContext(r *http.Request) string {
+	tokenClaims := context.Get(r, "tokenClaims")
+	return tokenClaims.(jwt.MapClaims)["user_id"].(string)
+}
+
 // AuthenticationMiddleware makes sure the request has a valid JWT token
 func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Auth")
 		if authorizationHeader := r.Header.Get("authorization"); authorizationHeader != "" {
 			bearerToken := strings.Split(authorizationHeader, " ")
 			if len(bearerToken) == 2 {
@@ -39,9 +52,8 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 					json.NewEncoder(w).Encode(Exception{Message: error.Error()})
 					return
 				}
-				if token.Valid {
-					log.Println("TOKEN WAS VALID")
-					context.Set(r, "decoded", token.Claims)
+				if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+					context.Set(r, "tokenClaims", claims)
 					next(w, r)
 				} else {
 					json.NewEncoder(w).Encode(Exception{Message: "Invalid authorization token"})
@@ -82,8 +94,7 @@ func sendJwtToken(user User, w http.ResponseWriter) {
 
 }
 
-func parseUserFromFrom(f *http.Request) User {
-	dumpRequest(f)
+func parseUserFromForm(f *http.Request) User {
 	if err := f.ParseForm(); err != nil {
 		return User{}
 	}
@@ -97,16 +108,13 @@ func parseUserFromFrom(f *http.Request) User {
 			user.Password = value[0]
 		}
 	}
-	log.Println("received user", user)
 	return user
 }
 
 // GetToken Autenthifies user
 func (c *Controller) GetToken(w http.ResponseWriter, r *http.Request) {
 	// Get user
-	dumpRequest(r)
-
-	user := parseUserFromFrom(r)
+	user := parseUserFromForm(r)
 
 	// Get the user's password from the db
 	var dbUser User
@@ -122,21 +130,16 @@ func (c *Controller) GetToken(w http.ResponseWriter, r *http.Request) {
 
 // AddUser adds a user if the username is not already taken
 func (c *Controller) AddUser(w http.ResponseWriter, r *http.Request) {
-	dumpRequest(r)
-	newUsr := parseUserFromFrom(r)
+	newUsr := parseUserFromForm(r)
 
 	// Make sure username does not already exist
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if c.Database.GetUserByUsername(newUsr.Name, &newUsr) {
-		log.Println("User exists!")
-
 		// If sucessfull -> user exists -> reply with user already exists
 		w.WriteHeader(http.StatusTeapot)
 		json.NewEncoder(w).Encode(Exception{Message: "Username is already assigned"})
 	} else {
-		log.Println("User does not exist!")
 		if usr, err := c.Database.AddUser(newUsr); err {
-			log.Println("User added!")
 			sendJwtToken(usr, w)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -144,16 +147,16 @@ func (c *Controller) AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetAllDevices returns the list of devices a user owns
 func (c *Controller) GetAllDevices(w http.ResponseWriter, r *http.Request) {
-	dumpRequest(r)
-	w.WriteHeader(http.StatusOK)
+	var user User
+	if c.Database.GetUserByID(getUserIDFromContext(r), &user) {
+		json.NewEncoder(w).Encode(user.Devices)
+	}
 }
 
-func dumpRequest(r *http.Request) {
-	output, err := httputil.DumpRequest(r, true)
-	if err != nil {
-		log.Println("Error dumping request:", err)
-		return
-	}
-	log.Println(string(output))
+func AddDevice(w http.ResponseWriter, r *http.Request) {
+	userID := getUserIDFromContext(r)
+	log.Println(r.RemoteAddr, userID)
+	w.WriteHeader(http.StatusOK)
 }

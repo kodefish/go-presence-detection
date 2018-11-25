@@ -45,7 +45,7 @@ func (db Database) GetUsers() Users {
 }
 
 // GetUserByID retrieves the user with the corresponding id from the db
-func (db Database) GetUserByID(id int, result *User) bool {
+func (db Database) GetUserByID(id string, result *User) bool {
 	session, collection := getSessionAndCollection()
 	defer session.Close()
 

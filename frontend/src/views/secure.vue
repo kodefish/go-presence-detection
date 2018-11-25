@@ -57,106 +57,108 @@
 </template>
 
 <script>
-  export default {
-    name: "Secure",
-    data() {
-        const data = [
-            { 'mac': 1, 'connected': 'Nah' },
-            { 'mac': 2, 'connected': 'Yeh' }
-        ]
-      return {
-          data,
-          checkedRows: [],
-            columns: [
-                {
-                    field: 'mac',
-                    label: 'MAC address'
-                },
-                {
-                    field: 'connected',
-                    label: 'Currently connected',
-                } 
-            ],
-          input: {
-              mac: ""
-          }
-      };
-    },
-    methods: {
-        addThisDevice() {
-            if (false /* TODO: Check that it isn't added already */) {
-                this.$dialog.alert({
-                    message:
-                    "Looks like this device is already added",
-                    confirmText: "Oh right, I totes forgot!"
-                });
-            } else {
-                // TODO: Get MAC address
-                // TODO: Add the stuff to the DB
-                this.$toast.open({
-                    duration: 5000,
-                    message: "Your device has been added to our network. Tanks for your trust, we totally won't give any of your info to the NSA, we swear!"
-                });
-            }
+export default {
+  name: "Secure",
+  data() {
+    const data = [{ mac: 1, connected: "Nah" }, { mac: 2, connected: "Yeh" }];
+    return {
+      data,
+      checkedRows: [],
+      columns: [
+        {
+          field: "mac",
+          label: "MAC address"
         },
-        removeThisDevice() {
-            if (this.input.mac != "") {
-                if (false /* TODO: if it isn't in the list */) {
-                    this.$dialog.alert({
-                        message:
-                        "You don't have any such device",
-                        confirmText: "Oh right, I totes forgot!"
-                    });
-                } else {
-                    // TODO: Remove the stuff from the DB
-                    this.$toast.open({
-                        duration: 5000,
-                        message: "Your device has been removed from our network. You can count on us to *totally* stop tracking you now!"
-                    });
-                }
-            } else {
-                this.$dialog.alert({
-                    message:
-                    "At least type something. It's like you're not even trying...",
-                    confirmText: "K, K, I'll do it"
-                });
-            }
-        },
-        getAllDevices() {
-            console.log("Getting devices");
-            this.$http.get(
-                this.$store.state.server + "/devices",
-                {headers: { Authorization: "Bearer " + this.$store.state.jwt }}
-            ).then(function (response) {
-                console.log(JSON.stringify(response))
-            })
+        {
+          field: "connected",
+          label: "Currently connected"
         }
+      ],
+      input: {
+        mac: ""
+      }
+    };
+  },
+  methods: {
+    addThisDevice() {
+      if (false /* TODO: Check that it isn't added already */) {
+        this.$dialog.alert({
+          message: "Looks like this device is already added",
+          confirmText: "Oh right, I totes forgot!"
+        });
+      } else {
+        // TODO: Get MAC address
+        // TODO: Add the stuff to the DB
+        this.$toast.open({
+          duration: 5000,
+          message:
+            "Your device has been added to our network. Tanks for your trust, we totally won't give any of your info to the NSA, we swear!"
+        });
+      }
     },
-    beforeMount() {
-        this.getAllDevices()
+    removeThisDevice() {
+      if (this.input.mac != "") {
+        if (false /* TODO: if it isn't in the list */) {
+          this.$dialog.alert({
+            message: "You don't have any such device",
+            confirmText: "Oh right, I totes forgot!"
+          });
+        } else {
+          // TODO: Remove the stuff from the DB
+          this.$toast.open({
+            duration: 5000,
+            message:
+              "Your device has been removed from our network. You can count on us to *totally* stop tracking you now!"
+          });
+        }
+      } else {
+        this.$dialog.alert({
+          message:
+            "At least type something. It's like you're not even trying...",
+          confirmText: "K, K, I'll do it"
+        });
+      }
+    },
+    getAllDevices() {
+      console.log("Getting devices");
+      if (this.$store.state.jwt != "") {
+        this.$http
+          .get(this.$store.state.server + "/devices", {
+            headers: { Authorization: "Bearer " + this.$store.state.jwt }
+          })
+          .then(function(response) {
+            console.log(JSON.stringify(response));
+          });
+      } else {
+        this.$router.replace({ name: "login" });
+      }
     }
-  };
+  },
+  beforeMount() {
+    this.getAllDevices();
+  }
+};
 </script>
 
 <style scoped>
-  #loggedIn {
-    background-color: #ffffff;
-    border: 1px solid #cccccc;
-    opacity: 0.9;
-    padding: 20px;
-    margin-top: 10px;
-  }
-  .article-container {
-    display: flex;
-    flex-wrap: wrap;
-    text-align: left;
-  }
-  .article {
-    flex: 0 0 50%;
-    padding: 10px;
-  }
-  * {
-    margin: 0;
-    box-sizing: border-box;
-  }
+#loggedIn {
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  opacity: 0.9;
+  padding: 20px;
+  margin-top: 10px;
+}
+.article-container {
+  display: flex;
+  flex-wrap: wrap;
+  text-align: left;
+}
+.article {
+  flex: 0 0 50%;
+  padding: 10px;
+}
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
 </style>

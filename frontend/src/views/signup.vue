@@ -58,82 +58,88 @@
 </template>
 
 <script>
-  import * as axios from "axios";
-  export default {
-    name: "Signup",
-    data() {
-      return {
-        filedata: 0,
-        input: {
-          username: "",
-          password: "",
-          passwordAgain: ""
-        }
-      };
-    },
-    methods: {
-      signup() {
-        if (this.input.username !== "" && this.input.password !== "") {
-            if (this.input.password != this.input.passwordAgain) {
-              this.$dialog.alert({
-                    message:
-                      "Uh-oh spaghetti-oh, looks like someone did a typo",
-                    confirmText: "I'll try again"
-                });
-            } else {
-                this.$http.post(this.$store.state.server+"/register", {
-                    username: this.input.username,
-                    password: this.input.password
-                }, {emulateJSON:true}).then(function(response) {
-                  console.log(response)
-                  this.$store.state.userIsLoggedIn = true
-                  this.$router.replace({ name: "secure" });
-                }).catch(function(error) {
-                  console.log(error)
-                  this.$dialog.alert({
-                    message:
-                      "Well, it's kind of awkward, but... the username you picked really sucks, and we feel like you should take another one",
-                    confirmText: "Jeez, whatev's..."
-                  });
-                });
-            } 
-          
-        } else {
-          this.$dialog.alert({
-            message:
-              "At least type something. It's like you're not even trying...",
-            confirmText: "K, K, I'll do it"
-          });
-        }
-
-        this.input.username = ""
-        this.input.password = ""
-        this.input.passwordAgain = ""
-      },
-      login() {
-        this.$router.replace({ name: "login" });
+import * as axios from "axios";
+export default {
+  name: "Signup",
+  data() {
+    return {
+      filedata: 0,
+      input: {
+        username: "",
+        password: "",
+        passwordAgain: ""
       }
+    };
+  },
+  methods: {
+    signup() {
+      if (this.input.username !== "" && this.input.password !== "") {
+        if (this.input.password != this.input.passwordAgain) {
+          this.$dialog.alert({
+            message: "Uh-oh spaghetti-oh, looks like someone did a typo",
+            confirmText: "I'll try again"
+          });
+        } else {
+          this.$http
+            .post(
+              this.$store.state.server + "/register",
+              {
+                username: this.input.username,
+                password: this.input.password
+              },
+              { emulateJSON: true }
+            )
+            .then(function(response) {
+              console.log(response);
+              this.$store.state.userIsLoggedIn = true;
+              this.$store.state.jwt = response.body.token;
+              this.$router.replace({ name: "secure" });
+            })
+            .catch(function(error) {
+              console.log(error);
+              this.$dialog.alert({
+                message:
+                  "Well, it's kind of awkward, but... the username you picked really sucks, and we feel like you should take another one",
+                confirmText: "Jeez, whatev's..."
+              });
+            });
+        }
+      } else {
+        this.$dialog.alert({
+          message:
+            "At least type something. It's like you're not even trying...",
+          confirmText: "K, K, I'll do it"
+        });
+      }
+
+      this.input.username = "";
+      this.input.password = "";
+      this.input.passwordAgain = "";
+    },
+    login() {
+      this.$router.replace({ name: "login" });
     }
-  };
+  }
+};
 </script>
 
 <style scoped>
-  #signup {
-    border: 1px solid #cccccc;
-    background-color: #ffffff;
-    opacity: 0.9;
-    display: inline-block;
-    margin-left: 25%;
-    margin-top: 1%;
-    text-align: center;
-    margin-right: auto;
-    width: 50%;
-    padding: 20px;
-    position: fixed;
-    overflow-y: scroll;
-    border-radius: 5px;
-  }
-  .button {
-    margin-top: 16px;
-  }
+#signup {
+  border: 1px solid #cccccc;
+  background-color: #ffffff;
+  opacity: 0.9;
+  display: inline-block;
+  margin-left: 25%;
+  margin-top: 1%;
+  text-align: center;
+  margin-right: auto;
+  width: 50%;
+  padding: 20px;
+  position: fixed;
+  overflow-y: scroll;
+  border-radius: 5px;
+}
+.button {
+  margin-top: 16px;
+}
 </style>
