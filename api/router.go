@@ -26,5 +26,6 @@ func NewRouter() *vestigo.Router {
 	router.Get("/devices", controller.GetAllDevices, AuthenticationMiddleware)
 	router.Get("/connected-users", controller.WhosHome, AuthenticationMiddleware)
 	router.Get("/add-device", controller.AddDevice, AuthenticationMiddleware)
+	router.Post("/delete-device", controller.DeleteDevices, AuthenticationMiddleware)
 	return router
 }

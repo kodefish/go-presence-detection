@@ -11,6 +11,10 @@ type User struct {
 	Devices  []detection.MAC `bson:"devices" json:"devices"`
 }
 
+type UserDevices struct {
+	Devices []detection.MAC `bson:"devices" json:"devices"`
+}
+
 // Users list of users
 type Users []User
 

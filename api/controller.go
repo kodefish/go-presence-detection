@@ -152,7 +152,9 @@ func (c *Controller) AddUser(w http.ResponseWriter, r *http.Request) {
 func (c *Controller) GetAllDevices(w http.ResponseWriter, r *http.Request) {
 	var user User
 	if c.Database.GetUserByID(getUserIDFromContext(r), &user) {
-		json.NewEncoder(w).Encode(user.Devices)
+		//w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(UserDevices{user.Devices})
+		//json.NewEncoder(w).Encode(user.Devices)
 	}
 }
 
@@ -172,7 +174,8 @@ func (c *Controller) AddDevice(w http.ResponseWriter, r *http.Request) {
 		if c.Database.GetUserByID(userID, &user) {
 			user.Devices = append(user.Devices, userMAC)
 			if c.Database.UpdateUserById(userID, user) {
-				json.NewEncoder(w).Encode(user.Devices)
+				w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+				json.NewEncoder(w).Encode(UserDevices{user.Devices})
 				return
 			}
 		}
@@ -195,4 +198,42 @@ func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(usersHome)
+}
+
+func setDifference(a, b []detection.MAC) (diff []detection.MAC) {
+	m := make(map[detection.MAC]bool)
+
+	for _, item := range a {
+		m[item] = true
+	}
+
+	for _, item := range a {
+		if _, ok := m[item]; !ok {
+			diff = append(diff, item)
+		}
+	}
+	return
+}
+
+func (c *Controller) DeleteDevices(w http.ResponseWriter, r *http.Request) {
+	dumpRequest(r)
+	userID := getUserIDFromContext(r)
+	var macsToDelete []detection.MAC
+	defer r.Body.Close()
+	if err := json.NewDecoder(r.Body).Decode(&macsToDelete); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(Exception{Message: "Invalid request payload"})
+		return
+	}
+
+	var user User
+	if c.Database.GetUserByID(userID, &user) {
+		user.Devices = setDifference(user.Devices, macsToDelete)
+		if c.Database.UpdateUserById(userID, user) {
+			json.NewEncoder(w).Encode(user.Devices)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusInternalServerError)
+
 }

@@ -16,6 +16,8 @@
             <span>Remove these devices</span>
         </button>
 
+        {{ myDevices }}
+
         <b-tabs>
             <b-tab-item label="My Devices">
                 <b-table
@@ -71,28 +73,20 @@
 export default {
   name: "Secure",
   data() {
-    const myDevices = [
-      { mac: 1, connected: "Nah" },
-      { mac: 2, connected: "Yeh" }
-    ];
     const connectedUsers = [
       { name: ")'; DROP TABLE Users; --" },
       { name: "H4X0R" }
     ];
     return {
-      myDevices,
+      myDevices: [],
       checkedRows: [],
       columnsDevices: [
         {
           field: "mac",
           label: "MAC address"
-        },
-        {
-          field: "connected",
-          label: "Currently connected"
         }
       ],
-      connectedUsers,
+      connectedUsers: [],
       columnsUsers: [
         {
           field: "name",
@@ -146,48 +140,44 @@ export default {
           headers: { Authorization: "Bearer " + this.$store.state.jwt }
         })
         .then(function(response) {
-          console.log(JSON.stringify(response));
+          let list = response.data.devices;
+          self.myDevices = Object.assign({}, list);
+          if (list.length === 0) {
+              // TODO Hide the list of devices
+          }
+
+          console.log(self.myDevices);
         })
         .catch(function(error) {
           this.$dialog.alert("Nothing here");
         });
     },
-    wait(ms) {
-      var start = new Date().getTime();
-      var end = start;
-      while (end < start + ms) {
-        end = new Date().getTime();
-      }
-    },
     getConnectedUsers() {
-      while (true) {
-        console.log("Getting connected users");
-        this.$http
-          .get(this.$store.state.server + "/connected-users", {
-            headers: { Authorization: "Bearer " + this.$store.state.jwt }
-          })
-          .then(function(response) {
-            var asString = JSON.stringify(response); // Of the form userName -> MAC
-            var asStrings = asString.split("\n");
-            var users = asStrings;
-            for (var i = 0 ; i < asStrings.length ; i++) {
-                users[i] = asStrings[i].split(" ")[0];
-            }
-            
-          })
-          .catch(function(error) {
-            this.$dialog.alert("No one here");
-          });
-
-        wait(10000); // 10 seconds
-      }
+      console.log("Getting connected users");
+      this.$http
+        .get(this.$store.state.server + "/connected-users", {
+          headers: { Authorization: "Bearer " + this.$store.state.jwt }
+        })
+        .then(function(response) {
+          var asString = JSON.stringify(response); // Of the form userName -> MAC
+          var asStrings = asString.split("\n");
+          var users = asStrings;
+          for (var i = 0; i < asStrings.length; i++) {
+            users[i] = asStrings[i].split(" ")[0];
+          }
+        })
+        .catch(function(error) {
+          this.$dialog.alert("No one here");
+        });
     }
   },
   beforeMount() {
     if (this.$store.state.jwt != null) {
+      console.log("jwt token found");
       this.getAllDevices();
       this.getConnectedUsers();
     } else {
+        console.log("jwt token not found, redirecting");
       this.$router.replace({ name: "login" });
     }
   }
