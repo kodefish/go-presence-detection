@@ -14,6 +14,20 @@
           Other connected users: {{ connectedUsers }} <br />
       </section>
 
+      <div>
+          <b-field label="Device to remove">
+            <b-input
+                v-model="input.toRemove"
+                placeholder="MAC address"
+                style="width: 50%"
+            ></b-input>
+          </b-field>
+
+          <button class="button is-danger" @click="removeThisDevice();">
+            Remove this device
+          </button>
+      </div>
+
     </div>
 
     <vue-particles>
@@ -41,7 +55,10 @@ export default {
   data() {
     return {
         myDevices: [],
-        connectedUsers: []
+        connectedUsers: [],
+        input: {
+            toRemove: ""
+        }
     };
   },
   methods: {
@@ -56,22 +73,26 @@ export default {
         .catch(function(error) {
           this.$dialog.alert("Sorry");
         });
+
+        this.getAllDevices()
     },
     removeThisDevice() {
-      if (this.checkedRows.length > 0) {
+      if (this.input.toRemove != "") {
+        let devices = [this.input.toRemove]
         this.$http.post(this.$store.state.server + "/delete-device", {
-            // TODO: give the mac addresses to delete
+          devices
         }, {
           headers: { Authorization: "Bearer " + this.$store.state.jwt }
-        })
-        .then(function(response) {
+        }).then(function(response) {
             console.log(JSON.stringify(response));
         }).catch(function(error) {
-          this.$dialog.alert("Nothing here");
+          // Nothing
         });
       } else {
         this.$dialog.alert("You have to chose which device to delete");
       }
+
+      this.getAllDevices()
     },
     getAllDevices() {
       let self = this;
@@ -81,7 +102,7 @@ export default {
           console.log(response.data);
           this.myDevices = response.data.devices;
         }).catch(function(error) {
-          this.$dialog.alert("Nothing here");
+            // Nothing
         });
     },
     getConnectedUsers() {
@@ -94,7 +115,7 @@ export default {
           connectedUsers = response.data;
         })
         .catch(function(error) {
-          this.$dialog.alert("No one here");
+            // Nothing
         });
     }
   },
