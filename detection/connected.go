@@ -7,7 +7,7 @@ import (
 
 const (
 	maxConsecutiveAbsences = 3
-	sleepTime              = 1
+	sleepTime              = 10
 )
 
 var (
