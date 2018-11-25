@@ -1,5 +1,7 @@
 package api
 
+import "github.com/kodefish/go-presence-detection/detection"
+
 // Device Type enum
 type DeviceType int
 
@@ -19,19 +21,13 @@ type User struct {
 // Users list of users
 type Users []User
 
-// TODO are these really strings or can we use smth else ?
-// MAC is a hardware address of a device
-type MAC string
-
-// IP is a IP address of a device
-type IP string
 type Device struct {
-	ID      int        `bson:"_id" json:"_id"`
-	MACAddr MAC        `bson:"mac_address" json:"mac_address"`
-	IPAddr  IP         `bson:"ip_address" json:"ip_address"`
-	Name    string     `bson:"device_name" json:"device_name"`
-	Type    DeviceType `bson:"device_type" json:"device_type"`
-	Mobile  bool       `bson:"mobile" json:"mobile"`
+	ID      int           `bson:"_id" json:"_id"`
+	MACAddr detection.MAC `bson:"mac_address" json:"mac_address"`
+	IPAddr  detection.IP  `bson:"ip_address" json:"ip_address"`
+	Name    string        `bson:"device_name" json:"device_name"`
+	Type    DeviceType    `bson:"device_type" json:"device_type"`
+	Mobile  bool          `bson:"mobile" json:"mobile"`
 }
 
 // Devices list of devices

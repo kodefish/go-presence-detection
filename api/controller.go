@@ -10,7 +10,6 @@ import (
 
 	"github.com/kodefish/go-presence-detection/crypto"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/context"
 )
 
@@ -147,6 +146,21 @@ func (c *Controller) AddUser(w http.ResponseWriter, r *http.Request) {
 func (c *Controller) GetAllDevices(w http.ResponseWriter, r *http.Request) {
 	dumpRequest(r)
 	w.WriteHeader(http.StatusOK)
+}
+
+func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {
+	dumpRequest(r)
+	detection.MAC[] macs = detection.GetMacs()
+	usersHome := make(map[string]string) // username -> one of their device's MAC
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	for _, mac := range macs {
+		if var dbUser User; c.Database.getUserByDevice(mac, &dbUser) {
+			usersHome[dbUser] = mac
+		}
+	}
+
+	json.NewEncoder(w).Encode(usersHome)
 }
 
 func dumpRequest(r *http.Request) {
