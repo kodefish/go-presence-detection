@@ -17,7 +17,7 @@ Vue.use(VueParticles)
 
 const store = new Vuex.Store({
   state: {
-    server: "http://localhost:4200",
+    server: "http://192.33.206.40:4200",
     backgroundImagePath: require('./assets/background.jpg'),
     userIsLoggedIn: false,
     jwt: ""
