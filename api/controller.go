@@ -150,7 +150,7 @@ func (c *Controller) GetAllDevices(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {
 	dumpRequest(r)
-	detection.MAC[] macs = detection.GetMacs()
+	macs []detection.MAC := detection.GetMacs()
 	usersHome := make(map[string]string) // username -> one of their device's MAC
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
