@@ -115,11 +115,10 @@ export default {
       console.log("Getting connected users");
       this.$http
         .get(this.$store.state.server + "/connected-users", {
-          headers: { Authorization: "Bearer " + this.$store.state.jwt }
+            headers: { Authorization: "Bearer " + this.$store.state.jwt }
         })
         .then(function(response) {
-            this.$dialog.alert(response)
-          connectedUsers = response.data;
+            this.connectedUsers = response.data;
         })
         .catch(function(error) {
             // Nothing
