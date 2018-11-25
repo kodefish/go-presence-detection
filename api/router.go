@@ -1,71 +1,28 @@
 package api
 
 import (
-	"log"
-	"net/http"
+	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/husobee/vestigo"
 )
 
 var controller = &Controller{Database: Database{}}
 
-// Route struct defining a route
-type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc http.HandlerFunc
-}
-
-// Routes defines list of routes of the API
-type Routes []Route
-
-var routes = Routes{
-	Route{
-		"Index",
-		"GET",
-		"/",
-		controller.Index,
-	},
-	Route{
-		"AddUser",
-		"POST",
-		"/register",
-		controller.AddUser,
-	},
-	Route{
-		"Auth",
-		"POST",
-		"/get-token",
-		CORSMiddleware(controller.GetToken),
-	},
-	Route{
-		"Devices",
-		"GET",
-		"/devices",
-		AuthenticationMiddleware(controller.GetAllDevices),
-	},
-	/*
-		Route{
-			"AddDevice",
-			"POST",
-			"/add/device",
-			AuthenticationMiddleware(controller.AddDevice),
-		},
-	*/
-}
-
 // NewRouter function configures a new router to the API
-func NewRouter() *mux.Router {
-	router := mux.NewRouter().StrictSlash(true)
-	for _, route := range routes {
-		log.Println(route.Name)
+func NewRouter() *vestigo.Router {
+	router := vestigo.NewRouter()
+	router.SetGlobalCors(&vestigo.CorsAccessControl{
+		AllowOrigin:      []string{"*", "test.com"},
+		AllowCredentials: true,
+		ExposeHeaders:    []string{"X-Header", "X-Y-Header"},
+		MaxAge:           3600 * time.Second,
+		AllowHeaders:     []string{"X-Header", "X-Y-Header", "Authorization"},
+	})
 
-		router.
-			Methods(route.Method, "OPTIONS").
-			Path(route.Pattern).
-			Name(route.Name).
-			Handler(route.HandlerFunc)
-	}
+	// Define Routes
+	router.Get("/", controller.Index)
+	router.Post("/register", controller.AddUser)
+	router.Post("/get-token", controller.GetToken)
+	router.Get("/devices", controller.GetAllDevices, AuthenticationMiddleware)
 	return router
 }

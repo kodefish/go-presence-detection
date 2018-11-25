@@ -25,6 +25,7 @@ type Controller struct {
 // AuthenticationMiddleware makes sure the request has a valid JWT token
 func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Auth")
 		if authorizationHeader := r.Header.Get("authorization"); authorizationHeader != "" {
 			bearerToken := strings.Split(authorizationHeader, " ")
 			if len(bearerToken) == 2 {
@@ -52,28 +53,13 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 }
 
-func CORSMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-		log.Printf("CORS")
-		if (*r).Method == "OPTIONS" {
-			log.Printf("Options")
-			return
-		} else {
-			next(w, r)
-		}
-	})
-}
-
 // Index GET /
 func (c *Controller) Index(w http.ResponseWriter, r *http.Request) {
 	products := c.Database.GetUsers() // list of all products
 	// log.Println(products)
 	data, _ := json.Marshal(products)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "192.33.206.191")
 	w.WriteHeader(http.StatusOK)
 	w.Write(data)
 	return
@@ -97,6 +83,7 @@ func sendJwtToken(user User, w http.ResponseWriter) {
 }
 
 func parseUserFromFrom(f *http.Request) User {
+	dumpRequest(f)
 	if err := f.ParseForm(); err != nil {
 		return User{}
 	}
@@ -157,7 +144,10 @@ func (c *Controller) AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (c *Controller) GetAllDevices(w http.ResponseWriter, r *http.Request) {}
+func (c *Controller) GetAllDevices(w http.ResponseWriter, r *http.Request) {
+	dumpRequest(r)
+	w.WriteHeader(http.StatusOK)
+}
 
 func dumpRequest(r *http.Request) {
 	output, err := httputil.DumpRequest(r, true)
