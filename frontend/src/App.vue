@@ -44,6 +44,7 @@
       },
       logout() {
         this.$store.state.userIsLoggedIn = false
+        this.$store.state.jwt = ""
         this.$router.replace({ name: "login" });
       }
     }
