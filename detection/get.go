@@ -1,8 +1,13 @@
 package detection
 
+import (
+	"log"
+)
+
 // GetMACfromIP as surprising as it might sound, gets a MAC from an IP
 func GetMACfromIP(ip IP) (mac MAC) {
 	mac, _ = currentlyConnected[ip]
+	log.Println(mac)
 	return
 }
 

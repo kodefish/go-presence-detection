@@ -1,6 +1,7 @@
 package detection
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"strings"
@@ -12,10 +13,11 @@ import (
 func Scan() (ipandmac IPandMAC) {
 	ipandmac = make(IPandMAC)
 
-	output, err := exec.Command("/bin/bash", "-c", "arp-scan -l").Output()
+	output, err := exec.Command("/bin/bash", "-c", "sudo arp-scan -l").Output()
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println(output)
 
 	asStrings := strings.Split(string(output[:]), "\n")
 	asStrings = asStrings[2 : len(asStrings)-4]

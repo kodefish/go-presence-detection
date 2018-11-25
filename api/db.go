@@ -90,3 +90,11 @@ func (db Database) getUserByDevice(mac detection.MAC, result *User) bool {
 	err := collection.Find(bson.M{"MACAddr": mac}).One(result)
 	return err == nil
 }
+
+func (db Database) UpdateUserById(userID string, user User) bool {
+	session, collection := getSessionAndCollection()
+	defer session.Close()
+
+	err := collection.Update(bson.M{"_id": userID}, user)
+	return err == nil
+}

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -16,11 +15,11 @@ func main() {
 		log.Fatal("$PORT must be set")
 	}
 
+	// Launch arp scanner
+	go detection.Update()
+
+	// Init REST server
 	router := api.NewRouter() // create routes
 	// Launch server with CORS validation
 	log.Fatal(http.ListenAndServe(":"+port, router))
-
-	for key, value := range detection.Scan() {
-		fmt.Printf("%s - %s\n", key, value)
-	}
 }

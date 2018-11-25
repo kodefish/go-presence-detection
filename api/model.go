@@ -22,7 +22,7 @@ type User struct {
 type Users []User
 
 type Device struct {
-	ID      int           `bson:"_id" json:"_id"`
+	ID      string        `bson:"_id" json:"_id"`
 	MACAddr detection.MAC `bson:"mac_address" json:"mac_address"`
 	IPAddr  detection.IP  `bson:"ip_address" json:"ip_address"`
 	Name    string        `bson:"device_name" json:"device_name"`

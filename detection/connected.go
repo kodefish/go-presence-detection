@@ -1,6 +1,9 @@
 package detection
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 const (
 	maxConsecutiveAbsences = 3
@@ -17,7 +20,7 @@ var (
 func Update() {
 	for {
 		takeAttendance()
-
+		fmt.Println("Arp", currentlyConnected, absents, responders)
 		time.Sleep(sleepTime)
 	}
 }

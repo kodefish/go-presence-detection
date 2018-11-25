@@ -106,20 +106,16 @@ export default {
   },
   methods: {
     addThisDevice() {
-      if (false /* TODO: Check that it isn't added already */) {
-        this.$dialog.alert({
-          message: "Looks like this device is already added",
-          confirmText: "Oh right, I totes forgot!"
+      this.$http
+        .get(this.$store.state.server + "/add-device", {
+          headers: { Authorization: "Bearer " + this.$store.state.jwt }
+        })
+        .then(function(response) {
+          console.log(JSON.stringify(response));
+        })
+        .catch(function(error) {
+          this.$dialog.alert("Shit happens");
         });
-      } else {
-        // TODO: Get MAC address
-        // TODO: Add the stuff to the DB
-        this.$toast.open({
-          duration: 5000,
-          message:
-            "Your device has been added to our network. Tanks for your trust, we totally won't give any of your info to the NSA, we swear!"
-        });
-      }
     },
     removeThisDevice() {
       if (this.input.mac != "") {
@@ -145,7 +141,6 @@ export default {
       }
     },
     getAllDevices() {
-      console.log("Getting devices");
       this.$http
         .get(this.$store.state.server + "/devices", {
           headers: { Authorization: "Bearer " + this.$store.state.jwt }
@@ -183,8 +178,12 @@ export default {
     }
   },
   beforeMount() {
-    this.getAllDevices();
-    this.getConnectedUsers();
+    if (this.$store.state.jwt != null) {
+      this.getAllDevices();
+      this.getConnectedUsers();
+    } else {
+      this.$router.replace({ name: "login" });
+    }
   }
 };
 </script>

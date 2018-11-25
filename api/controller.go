@@ -11,6 +11,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/kodefish/go-presence-detection/crypto"
 	"github.com/kodefish/go-presence-detection/detection"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/gorilla/context"
 )
@@ -156,10 +157,26 @@ func (c *Controller) GetAllDevices(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AddDevice(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) AddDevice(w http.ResponseWriter, r *http.Request) {
+	dumpRequest(r)
 	userID := getUserIDFromContext(r)
 	log.Println(r.RemoteAddr, userID)
-	w.WriteHeader(http.StatusOK)
+	userIP := detection.IP((strings.Split(r.RemoteAddr, ":")[0]))
+	userMAC := detection.GetMACfromIP(userIP)
+	var user User
+	id, err := uuid.NewV4()
+	if err == nil && c.Database.GetUserByID(userID, &user) {
+		user.Devices = append(user.Devices, Device{
+			ID:      id.String(),
+			MACAddr: userMAC,
+			IPAddr:  userIP,
+		})
+		if c.Database.UpdateUserById(userID, user) {
+			json.NewEncoder(w).Encode(user.Devices)
+			return
+		}
+	}
+	w.WriteHeader(http.StatusInternalServerError)
 }
 
 func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {
