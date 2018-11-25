@@ -203,29 +203,14 @@ func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(connectedUser)
 }
 
-func setDifference(a, b []detection.MAC) (diff []detection.MAC) {
-	m := make(map[detection.MAC]bool)
-
-	for _, item := range a {
-		m[item] = true
-	}
-
-	for _, item := range a {
-		if _, ok := m[item]; !ok {
-			diff = append(diff, item)
+func getNewDevices(set []detection.MAC, elem detection.MAC) (newDevices []detection.MAC) {
+	newDevices = make([]detection.MAC)
+	for _, item := range set {
+		if item != elem {
+			newDevices.push(item)
 		}
 	}
 	return
-}
-
-func setContainsElem(set []detection.MAC, elem detection.MAC) bool {
-	for _, item := range set {
-		if item == elem {
-			return true
-		}
-	}
-
-	return false
 }
 
 func (c *Controller) DeleteDevices(w http.ResponseWriter, r *http.Request) {
@@ -250,13 +235,11 @@ func (c *Controller) DeleteDevices(w http.ResponseWriter, r *http.Request) {
 
 	var user User
 	if c.Database.GetUserByID(userID, &user) {
-		user.Devices = setDifference(user.Devices, dev.Devices)
+		user.Devices = getNewDevices(user.Devices, dev.Devices[0])
 		log.Println(user.Devices)
-		if setContainsElem(user.Devices, dev.devices[0]) {
-			if c.Database.UpdateUserById(userID, user) {
-				json.NewEncoder(w).Encode(user.Devices)
-				return
-			}
+		if c.Database.UpdateUserById(userID, user) {
+			json.NewEncoder(w).Encode(user.Devices)
+			return
 		}
 	}
 	w.WriteHeader(http.StatusInternalServerError)
