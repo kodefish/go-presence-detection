@@ -248,14 +248,15 @@ func (c *Controller) DeleteDevices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(dev.Devices[0])
 	var user User
 	if c.Database.GetUserByID(userID, &user) {
 		user.Devices = setDifference(user.Devices, dev.Devices)
 		log.Println(user.Devices)
-		if c.Database.UpdateUserById(userID, user) {
-			json.NewEncoder(w).Encode(user.Devices)
-			return
+		if setContainsElem(user.Devices, dev.devices[0]) {
+			if c.Database.UpdateUserById(userID, user) {
+				json.NewEncoder(w).Encode(user.Devices)
+				return
+			}
 		}
 	}
 	w.WriteHeader(http.StatusInternalServerError)
