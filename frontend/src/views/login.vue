@@ -70,8 +70,8 @@ export default {
             {
               username: this.input.username,
               password: this.input.password
-            },
-            { emulateJSON: true }
+            }/*,
+            { emulateJSON: true }*/
           )
           .then(function(response) {
             this.$store.state.userIsLoggedIn = true;

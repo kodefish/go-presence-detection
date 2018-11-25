@@ -9,45 +9,31 @@
         </button>
       </div>
 
-      <div style="margin-top: 16px">
-        <button class="button field is-danger" @click="checkedRows = []"
-            :disabled="!checkedRows.length">
-            <b-icon icon="close"></b-icon>
-            <span>Remove these devices</span>
-        </button>
+      <section>
+          My devices: {{ myDevices }} <br />
+          Other connected users: {{ connectedUsers }} <br />
+      </section>
 
-        {{ myDevices }}
+      <div>
+          <b-field label="Device to remove">
+            <b-input
+                v-model="input.toRemove"
+                placeholder="MAC address"
+                style="width: 50%"
+            ></b-input>
+          </b-field>
 
-        <b-tabs>
-            <b-tab-item label="My Devices">
-                <b-table
-                    :data="myDevices"
-                    :columns="columnsDevices"
-                    :checked-rows.sync="checkedRows"
-                    checkable>
-
-                    <template slot="bottom-left">
-                        <b>Total checked</b>: {{ checkedRows.length }}
-                    </template>
-                </b-table>
-            </b-tab-item>
-
-            <b-tab-item label="Selected devices">
-                <pre>{{ checkedRows }}</pre>
-            </b-tab-item>
-        </b-tabs>
+          <button class="button is-danger" @click="removeThisDevice();">
+            Remove this device
+          </button>
       </div>
 
       <div style="margin-top: 16px">
-        <b-tabs>
-            <b-tab-item label="Connected Users">
-                <b-table
-                    :data="connectedUsers"
-                    :columns="columnsUsers">
-                </b-table>
-            </b-tab-item>
-        </b-tabs>
+          <button class="button is-primary" @click="getConnectedUsers();">
+            Refresh the list of connected users
+          </button>
       </div>
+
     </div>
 
     <vue-particles>
@@ -73,29 +59,12 @@
 export default {
   name: "Secure",
   data() {
-    const connectedUsers = [
-      { name: ")'; DROP TABLE Users; --" },
-      { name: "H4X0R" }
-    ];
     return {
-      myDevices: [],
-      checkedRows: [],
-      columnsDevices: [
-        {
-          field: "mac",
-          label: "MAC address"
+        myDevices: [],
+        connectedUsers: [],
+        input: {
+            toRemove: ""
         }
-      ],
-      connectedUsers: [],
-      columnsUsers: [
-        {
-          field: "name",
-          label: "Name"
-        }
-      ],
-      input: {
-        mac: ""
-      }
     };
   },
   methods: {
@@ -108,66 +77,51 @@ export default {
           console.log(JSON.stringify(response));
         })
         .catch(function(error) {
-          this.$dialog.alert("Shit happens");
+          this.$dialog.alert("Sorry");
         });
+
+        this.getAllDevices()
     },
     removeThisDevice() {
-      if (this.input.mac != "") {
-        if (false /* TODO: if it isn't in the list */) {
-          this.$dialog.alert({
-            message: "You don't have any such device",
-            confirmText: "Oh right, I totes forgot!"
-          });
-        } else {
-          // TODO: Remove the stuff from the DB
-          this.$toast.open({
-            duration: 5000,
-            message:
-              "Your device has been removed from our network. You can count on us to *totally* stop tracking you now!"
-          });
-        }
-      } else {
-        this.$dialog.alert({
-          message:
-            "At least type something. It's like you're not even trying...",
-          confirmText: "K, K, I'll do it"
+      if (this.input.toRemove != "") {
+        let devices = [this.input.toRemove]
+        this.$http.post(this.$store.state.server + "/delete-device", {
+          devices
+        }, {
+          headers: { Authorization: "Bearer " + this.$store.state.jwt }
+        }).then(function(response) {
+            console.log(JSON.stringify(response));
+        }).catch(function(error) {
+          // Nothing
         });
+      } else {
+        this.$dialog.alert("You have to chose which device to delete");
       }
+
+      this.getAllDevices()
     },
     getAllDevices() {
-      this.$http
-        .get(this.$store.state.server + "/devices", {
+      let self = this;
+      this.$http.get(this.$store.state.server + "/devices", {
           headers: { Authorization: "Bearer " + this.$store.state.jwt }
-        })
-        .then(function(response) {
-          let list = response.data.devices;
-          self.myDevices = Object.assign({}, list);
-          if (list.length === 0) {
-              // TODO Hide the list of devices
-          }
-
-          console.log(self.myDevices);
-        })
-        .catch(function(error) {
-          this.$dialog.alert("Nothing here");
+        }).then(function(response) {
+          console.log(response.data);
+          this.myDevices = response.data.devices;
+        }).catch(function(error) {
+            // Nothing
         });
     },
     getConnectedUsers() {
       console.log("Getting connected users");
       this.$http
         .get(this.$store.state.server + "/connected-users", {
-          headers: { Authorization: "Bearer " + this.$store.state.jwt }
+            headers: { Authorization: "Bearer " + this.$store.state.jwt }
         })
         .then(function(response) {
-          var asString = JSON.stringify(response); // Of the form userName -> MAC
-          var asStrings = asString.split("\n");
-          var users = asStrings;
-          for (var i = 0; i < asStrings.length; i++) {
-            users[i] = asStrings[i].split(" ")[0];
-          }
+            this.connectedUsers = response.data;
         })
         .catch(function(error) {
-          this.$dialog.alert("No one here");
+            // Nothing
         });
     }
   },
