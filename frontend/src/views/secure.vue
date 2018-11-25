@@ -151,15 +151,9 @@ export default {
         });
     }
   },
-  beforeMount() {
-    if (this.$store.state.jwt != null) {
-      console.log("jwt token found");
-      this.getAllDevices();
-      this.getConnectedUsers();
-    } else {
-        console.log("jwt token not found, redirecting");
-      this.$router.replace({ name: "login" });
-    }
+  created:function() {
+    this.getAllDevices();
+    this.getConnectedUsers();
   }
 };
 </script>
