@@ -9,39 +9,11 @@
         </button>
       </div>
 
-      <div style="margin-top: 16px">
-        <button class="button field is-danger" @click="checkedRows = []"
-            :disabled="!checkedRows.length">
-            <b-icon icon="close"></b-icon>
-            <span>Remove these devices</span>
-        </button>
+      <section>
+          My devices: {{ myDevices }} <br />
+          Other connected users: {{ connectedUsers }} <br />
+      </section>
 
-        <b-tabs>
-            <b-tab-item label="My Devices">
-                <b-table
-                    :data="myDevices"
-                    :columns="columnsDevices"
-                    :checked-rows.sync="checkedRows"
-                    focusable>
-
-                    <template slot="bottom-left">
-                        <b>Total checked</b>: {{ checkedRows.length }}
-                    </template>
-                </b-table>
-            </b-tab-item>
-        </b-tabs>
-      </div>
-
-      <div style="margin-top: 16px">
-        <b-tabs>
-            <b-tab-item label="Connected Users">
-                <b-table
-                    :data="connectedUsers"
-                    :columns="columnsUsers">
-                </b-table>
-            </b-tab-item>
-        </b-tabs>
-      </div>
     </div>
 
     <vue-particles>
@@ -69,27 +41,7 @@ export default {
   data() {
     return {
         myDevices: [],
-        checkedRows: [],
-        columnsDevices: [
-            {
-            field: "mac",
-            label: "MAC address"
-            },
-            {
-            field: "connected",
-            label: "Currently connected"
-            }
-        ],
-        connectedUsers: [],
-        columnsUsers: [
-            {
-            field: "name",
-            label: "Name"
-            }
-        ],
-        input: {
-            mac: ""
-        }
+        connectedUsers: []
     };
   },
   methods: {
@@ -126,8 +78,8 @@ export default {
       this.$http.get(this.$store.state.server + "/devices", {
           headers: { Authorization: "Bearer " + this.$store.state.jwt }
         }).then(function(response) {
-          console.log(JSON.stringify(response));
-          this.myDevices.push(response.data[0]);
+          console.log(response.data);
+          this.myDevices = response.data.devices;
         }).catch(function(error) {
           this.$dialog.alert("Nothing here");
         });
@@ -139,12 +91,7 @@ export default {
           headers: { Authorization: "Bearer " + this.$store.state.jwt }
         })
         .then(function(response) {
-          var asString = JSON.stringify(response); // Of the form userName -> MAC
-          var asStrings = asString.split("\n");
-          var users = asStrings;
-          for (var i = 0; i < asStrings.length; i++) {
-            users[i] = asStrings[i].split(" ")[0];
-          }
+          connectedUsers = response.data;
         })
         .catch(function(error) {
           this.$dialog.alert("No one here");
