@@ -11,7 +11,6 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/kodefish/go-presence-detection/crypto"
 	"github.com/kodefish/go-presence-detection/detection"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/gorilla/context"
 )
@@ -163,20 +162,23 @@ func (c *Controller) AddDevice(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RemoteAddr, userID)
 	userIP := detection.IP((strings.Split(r.RemoteAddr, ":")[0]))
 	userMAC := detection.GetMACfromIP(userIP)
-	var user User
-	id, err := uuid.NewV4()
-	if err == nil && c.Database.GetUserByID(userID, &user) {
-		user.Devices = append(user.Devices, Device{
-			ID:      id.String(),
-			MACAddr: userMAC,
-			IPAddr:  userIP,
-		})
-		if c.Database.UpdateUserById(userID, user) {
-			json.NewEncoder(w).Encode(user.Devices)
+	// Check that MAC is not already in DB
+	if userMAC != "" {
+		if c.Database.MACInDB(userMAC) {
+			json.NewEncoder(w).Encode(Exception{Message: "This device is already in the DB"})
 			return
 		}
+		var user User
+		if c.Database.GetUserByID(userID, &user) {
+			user.Devices = append(user.Devices, userMAC)
+			if c.Database.UpdateUserById(userID, user) {
+				json.NewEncoder(w).Encode(user.Devices)
+				return
+			}
+		}
+		w.WriteHeader(http.StatusInternalServerError)
 	}
-	w.WriteHeader(http.StatusInternalServerError)
+	w.WriteHeader(http.StatusTeapot)
 }
 
 func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {

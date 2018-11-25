@@ -1,7 +1,6 @@
 package detection
 
 import (
-	"fmt"
 	"log"
 	"os/exec"
 	"strings"
@@ -17,7 +16,6 @@ func Scan() (ipandmac IPandMAC) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(output)
 
 	asStrings := strings.Split(string(output[:]), "\n")
 	asStrings = asStrings[2 : len(asStrings)-4]

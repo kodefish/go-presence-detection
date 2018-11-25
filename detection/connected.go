@@ -1,7 +1,6 @@
 package detection
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -20,7 +19,6 @@ var (
 func Update() {
 	for {
 		takeAttendance()
-		fmt.Println("Arp", currentlyConnected, absents, responders)
 		time.Sleep(sleepTime)
 	}
 }

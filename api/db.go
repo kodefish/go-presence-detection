@@ -98,3 +98,11 @@ func (db Database) UpdateUserById(userID string, user User) bool {
 	err := collection.Update(bson.M{"_id": userID}, user)
 	return err == nil
 }
+
+func (db Database) MACInDB(mac detection.MAC) bool {
+	session, collection := getSessionAndCollection()
+	defer session.Close()
+	count, err := collection.Find(bson.M{"devices": mac}).Count()
+	log.Println(count)
+	return err == nil && count > 0
+}
