@@ -28,6 +28,12 @@
           </button>
       </div>
 
+      <div style="margin-top: 16px">
+          <button class="button is-primary" @click="getConnectedUsers();">
+            Refresh the list of connected users
+          </button>
+      </div>
+
     </div>
 
     <vue-particles>
@@ -112,6 +118,7 @@ export default {
           headers: { Authorization: "Bearer " + this.$store.state.jwt }
         })
         .then(function(response) {
+            this.$dialog.alert(response)
           connectedUsers = response.data;
         })
         .catch(function(error) {
