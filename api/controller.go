@@ -185,6 +185,15 @@ func (c *Controller) AddDevice(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusTeapot)
 }
 
+func setContains(set []string, elem string) bool {
+	for _, item := range set {
+		if item == elem {
+			return true
+		}
+	}
+	return false
+}
+
 func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {
 	dumpRequest(r)
 	macs := detection.GetMACs()
@@ -195,8 +204,10 @@ func (c *Controller) WhosHome(w http.ResponseWriter, r *http.Request) {
 	for _, mac := range macs {
 		var dbUser User
 		if c.Database.getUserByDevice(mac, &dbUser) {
-			connectedUser = append(connectedUser, dbUser.Name)
-			usersHome[dbUser.Name] = mac
+			if !setContains(connectedUser, dbUser.name) {
+				connectedUser = append(connectedUser, dbUser.Name)
+				usersHome[dbUser.Name] = mac
+			}
 		}
 	}
 
